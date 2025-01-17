@@ -5,30 +5,27 @@ def ft_count(column):
     return column.count()
         
 def ft_mean(column):
-    col_data = column.dropna()
     sum = 0
-    for i in range(len(col_data)):
-        sum += col_data.iloc[i]
-    return sum / len(col_data)
+    for i in range(len(column)):
+        sum += column.iloc[i]
+    return sum / len(column)
 
 def ft_std(column):
     #return math.sqrt(ft_var(column))
     return column.std()
 
 def ft_min(column):
-    col_data = column.dropna()
-    min = col_data.iloc[0]
-    for i in range(len(col_data)):
-        if col_data.iloc[i] < min:
-            min = col_data.iloc[i]
+    min = column.iloc[0]
+    for i in range(len(column)):
+        if column.iloc[i] < min:
+            min = column.iloc[i]
     return min
 
 def ft_max(column):
-    col_data = column.dropna()
-    max = col_data.iloc[0]
-    for i in range(len(col_data)):
-        if col_data.iloc[i] > max:
-            max = col_data.iloc[i]
+    max = column.iloc[0]
+    for i in range(len(column)):
+        if column.iloc[i] > max:
+            max = column.iloc[i]
     return max
         
 def ft_25(column):

@@ -39,7 +39,7 @@ def ft_describe(csv_file):
         print('error: could not read .csv file', file=sys.stderr)
         return
 
-    df = df.rename(columns=lambda x: format_column_name(x))
+    df = df.rename(columns=format_column_name)
     
     # Define statistics to calculate
     stats = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'var', 'skew', 'kurt', 'range']
@@ -48,9 +48,6 @@ def ft_describe(csv_file):
     # Compute stats for float columns
     for column in df.select_dtypes(include=['float']).columns:
         col_data = df[column].dropna()  # Exclude NaN values
-        if col_data.empty:
-            results[column] = [np.nan] * len(stats) 
-            continue
         stats = stats_computation(col_data)
         results[column] = list(stats.values())
     
