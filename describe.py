@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pandas as pd
+import calculation_utils as calc
 
 # Truncate column names and add a dot if the name is too long
 def format_column_name(name):
@@ -13,19 +14,19 @@ def format_column_name(name):
 def stats_computation(col_data):
     stats = {}
 
-    stats['count'] = col_data.count()                           # count
-    stats['mean'] = col_data.mean()                             # mean
-    stats['std'] = col_data.std(ddof=1)                         # std
-    stats['min'] = col_data.min()                               # min
-    stats['25%'] = col_data.quantile(0.25)                      # 25th percentile
-    stats['50%'] = col_data.median()                            # 50th percentile (median)
-    stats['75%'] = col_data.quantile(0.75)                      # 75th percentile
-    stats['max'] = col_data.max()                               # max
-    
-    stats['var'] = col_data.var(ddof=1)                         # variance
-    stats['skew'] = col_data.skew()                             # skewness
-    stats['kurt'] = col_data.kurt()                             # kurtosis
-    stats['range'] = col_data.max() - col_data.min()            # range
+    stats['count'] = calc.ft_count(col_data)                    # count
+    stats['mean'] = calc.ft_mean(col_data)                      # mean
+    stats['std'] = calc.ft_std(col_data)                        # std
+    stats['min'] = calc.ft_min(col_data)                        # min
+    stats['25%'] = calc.ft_25(col_data)                         # 25th percentile
+    stats['50%'] = calc.ft_50(col_data)                         # 50th percentile (median)
+    stats['75%'] = calc.ft_75(col_data)                         # 75th percentile
+    stats['max'] = calc.ft_max(col_data)                        # max
+
+    stats['var'] = calc.ft_var(col_data)                        # variance
+    stats['skew'] = calc.ft_skew(col_data)                      # skewness
+    stats['kurt'] = calc.ft_kurt(col_data)                      # kurtosis
+    stats['range'] = calc.ft_range(col_data)                    # range
 
     return stats
 
