@@ -48,6 +48,7 @@ def ft_describe(csv_file):
     # Compute stats for float columns
     for column in df.select_dtypes(include=['float']).columns:
         col_data = df[column].dropna()  # Exclude NaN values
+        col_data = col_data.sort_values()
         stats = stats_computation(col_data)
         results[column] = list(stats.values())
     

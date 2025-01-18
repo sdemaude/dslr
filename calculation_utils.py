@@ -1,8 +1,9 @@
 import math
+
 # Custom calculation functions for a given Pandas Serie(column)
 
 def ft_count(column):
-    return column.count()
+    return len(column)
         
 def ft_mean(column):
     sum = 0
@@ -11,34 +12,47 @@ def ft_mean(column):
     return sum / len(column)
 
 def ft_std(column):
-    #return math.sqrt(ft_var(column))
-    return column.std()
+    return math.sqrt(ft_var(column))
 
 def ft_min(column):
-    min = column.iloc[0]
-    for i in range(len(column)):
-        if column.iloc[i] < min:
-            min = column.iloc[i]
-    return min
+    return column.iloc[0]
 
 def ft_max(column):
-    max = column.iloc[0]
-    for i in range(len(column)):
-        if column.iloc[i] > max:
-            max = column.iloc[i]
-    return max
+    return column.iloc[-1]
         
 def ft_25(column):
-    return column.quantile(0.25)
+    n = len(column)
+    pos = n // 4
+    if n % 4 != 0:
+        median = column.iloc[pos]
+    else:
+        median = (column.iloc[pos - 1] + column.iloc[pos]) / 2
+    return median
 
 def ft_50(column):
-    return column.median()
+    n = len(column)
+    pos = n // 2
+    if n % 2 != 0:
+        median = column.iloc[pos]
+    else:        
+        median = (column.iloc[pos - 1] + column.iloc[pos]) / 2
+    return median
 
 def ft_75(column):
-    return column.quantile(0.75)
+    n = len(column)
+    pos = n // 4 * 3
+    if n % 4 != 0:
+        median = column.iloc[pos]
+    else:
+        median = (column.iloc[pos - 1] + column.iloc[pos]) / 2
+    return median
 
 def ft_var(column):
-    return column.var()
+    # Subtract the mean from each value and square the result
+    squared_differences = (column - ft_mean(column)) ** 2
+    # Calculate the variance
+    variance = squared_differences.sum() / len(column)
+    return variance
 
 def ft_skew(column):
     return column.skew()
