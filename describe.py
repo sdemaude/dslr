@@ -31,23 +31,15 @@ def stats_computation(col_data):
     return stats
 
 # Custom implementation of pandas.DataFrame.describe() function
-def ft_describe(csv_file):
-    # Read the CSV file and catch any errors
-    try: 
-        df = pd.read_csv(csv_file)
-    except:
-        print('error: could not read .csv file', file=sys.stderr)
-        return
+def ft_describe(data_frame):
 
-    df = df.rename(columns=format_column_name)
-    
     # Define statistics to calculate
     stats = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'var', 'skew', 'kurt', 'range']
     results = {}
-    
+
     # Compute stats for float columns
-    for column in df.select_dtypes(include=['float']).columns:
-        col_data = df[column].dropna()  # Exclude NaN values
+    for column in data_frame.select_dtypes(include=['float']).columns:
+        col_data = data_frame[column].dropna()  # Exclude NaN values
         col_data = col_data.sort_values()
         stats = stats_computation(col_data)
         results[column] = list(stats.values())
@@ -56,10 +48,37 @@ def ft_describe(csv_file):
     result_df = pd.DataFrame(results, index=stats)
     return result_df
 
-# Check if the user provided a CSV file
-if len(sys.argv) != 2:
-    print('usage: describe.py [input_file].csv', file=sys.stderr)
-else :
-    output = ft_describe(sys.argv[1])
-    if output is not None:
-        print(output)
+def main():
+    # Check if the user provided a CSV file
+    if len(sys.argv) != 2:
+        print('usage: describe.py [input_file].csv', file=sys.stderr)
+    else :
+        # Read the CSV file and catch any errors
+        try: 
+            csv_file = sys.argv[1]
+            df = pd.read_csv(csv_file)
+            
+        except:
+            print('error: could not read .csv file', file=sys.stderr)
+            return
+
+        df = df.rename(columns=format_column_name)
+
+        print('\nft_describe function:\n')  
+        print(ft_describe(df))
+
+        print('\n')
+
+        float_df = df.select_dtypes(include=['float'])
+        true_describe = float_df.describe()
+
+        true_describe.loc['var'] = float_df.var()
+        true_describe.loc['skew'] = float_df.skew()
+        true_describe.loc['kurt'] = float_df.kurt()
+        true_describe.loc['range'] = float_df.max() - float_df.min()
+
+        print('true describe function:\n')
+        print(true_describe)
+
+if __name__ == '__main__':
+    main()
