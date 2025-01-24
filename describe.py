@@ -3,14 +3,12 @@ import numpy as np
 import pandas as pd
 import calculation_utils as calc
 
-# Truncate column names and add a dot if the name is too long
 def format_column_name(name):
     truncated = name[:10]  # Truncate to 10 characters
     if len(name) > 10:     # Check if the name was truncated
         truncated = truncated.rstrip() + '...'
     return truncated 
 
-# Compute statistics for a given column   
 def stats_computation(col_data):
     stats = {}
 
@@ -49,10 +47,13 @@ def ft_describe(data_frame):
     return result_df
 
 def main():
-    # Check if the user provided a CSV file
-    if len(sys.argv) != 2:
-        print('usage: describe.py [input_file].csv', file=sys.stderr)
+    if len(sys.argv) != 2 and len(sys.argv) != 3:
+        print('usage: describe.py [input_file].csv [-d]', file=sys.stderr)
     else :
+        if len(sys.argv) == 3 and sys.argv[2] != '-d':
+            print('usage: describe.py [input_file].csv [-d]', file=sys.stderr)
+            return
+
         # Read the CSV file and catch any errors
         try: 
             csv_file = sys.argv[1]
@@ -67,18 +68,17 @@ def main():
         print('\nft_describe function:\n')  
         print(ft_describe(df))
 
-        print('\n')
+        if len(sys.argv) == 3:
+            float_df = df.select_dtypes(include=['float'])
+            true_describe = float_df.describe()
 
-        float_df = df.select_dtypes(include=['float'])
-        true_describe = float_df.describe()
+            true_describe.loc['var'] = float_df.var()
+            true_describe.loc['skew'] = float_df.skew()
+            true_describe.loc['kurt'] = float_df.kurt()
+            true_describe.loc['range'] = float_df.max() - float_df.min()
 
-        true_describe.loc['var'] = float_df.var()
-        true_describe.loc['skew'] = float_df.skew()
-        true_describe.loc['kurt'] = float_df.kurt()
-        true_describe.loc['range'] = float_df.max() - float_df.min()
-
-        print('true describe function:\n')
-        print(true_describe)
+            print('\npandas describe function:\n')
+            print(true_describe)
 
 if __name__ == '__main__':
     main()

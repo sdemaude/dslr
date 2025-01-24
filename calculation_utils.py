@@ -68,7 +68,17 @@ def ft_skew(column):
     return skewness
 
 def ft_kurt(column):
-    return column.kurtosis()
+    mean = ft_mean(column)
+    n = len(column)
+    var = ft_var(column)
+    sum_term = ((column-mean)**4).sum()
+    factor = (n+1) * n / (n-1) / (n-2) / (n-3)
+    second = - 3 * (n-1) * (n-1) / (n-2) / (n-3)
+
+    first = factor * sum_term / var / var
+
+    kurtosis = first + second
+    return kurtosis
 
 def ft_range(column):
     return ft_max(column) - ft_min(column)
