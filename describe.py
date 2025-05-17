@@ -9,22 +9,22 @@ def format_column_name(name):
         truncated = truncated.rstrip() + '...'
     return truncated 
 
-def stats_computation(col_data):
+def stats_computation(column):
     stats = {}
 
-    stats['count'] = calc.ft_count(col_data)                    # count
-    stats['mean'] = calc.ft_mean(col_data)                      # mean
-    stats['std'] = calc.ft_std(col_data)                        # std
-    stats['min'] = calc.ft_min(col_data)                        # min
-    stats['25%'] = calc.ft_25(col_data)                         # 25th percentile
-    stats['50%'] = calc.ft_50(col_data)                         # 50th percentile (median)
-    stats['75%'] = calc.ft_75(col_data)                         # 75th percentile
-    stats['max'] = calc.ft_max(col_data)                        # max
+    stats['count'] = calc.ft_count(column)                    # count
+    stats['mean'] = calc.ft_mean(column)                      # mean
+    stats['std'] = calc.ft_std(column)                        # std
+    stats['min'] = calc.ft_min(column)                        # min
+    stats['25%'] = calc.ft_25(column)                         # 25th percentile
+    stats['50%'] = calc.ft_50(column)                         # 50th percentile (median)
+    stats['75%'] = calc.ft_75(column)                         # 75th percentile
+    stats['max'] = calc.ft_max(column)                        # max
 
-    stats['var'] = calc.ft_var(col_data)                        # variance
-    stats['skew'] = calc.ft_skew(col_data)                      # skewness
-    stats['kurt'] = calc.ft_kurt(col_data)                      # kurtosis
-    stats['range'] = calc.ft_range(col_data)                    # range
+    stats['var'] = calc.ft_var(column)                        # variance
+    stats['skew'] = calc.ft_skew(column)                      # skewness
+    stats['kurt'] = calc.ft_kurt(column)                      # kurtosis
+    stats['range'] = calc.ft_range(column)                    # range
 
     return stats
 
@@ -36,11 +36,11 @@ def ft_describe(data_frame):
     results = {}
 
     # Compute stats for float columns
-    for column in data_frame.select_dtypes(include=['float']).columns:
-        col_data = data_frame[column].dropna()  # Exclude NaN values
-        col_data = col_data.sort_values()
-        stats = stats_computation(col_data)
-        results[column] = list(stats.values())
+    for column_name in data_frame.select_dtypes(include=['float']).columns:
+        column = data_frame[column_name].dropna()  # Exclude NaN values
+        column = column.sort_values()
+        stats = stats_computation(column)
+        results[column_name] = list(stats.values())
     
     # Create the result DataFrame to display the stats
     result_df = pd.DataFrame(results, index=stats)

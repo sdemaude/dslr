@@ -1,84 +1,59 @@
-import math
-
-# Custom calculation functions for a given Pandas Serie(column)
+import numpy as np
 
 def ft_count(column):
-    return len(column)
+    return column.size
+
+def ft_sum(column):
+    sum = 0
+    for value in column:
+        sum += value
+    return sum
         
 def ft_mean(column):
-    sum = 0
-    for i in range(len(column)):
-        sum += column.iloc[i]
-    return sum / len(column)
+    return ft_sum(column) / column.size
 
 def ft_std(column):
-    return math.sqrt(ft_var(column))
+    return np.sqrt(ft_var(column))
 
 def ft_min(column):
-    return column.iloc[0]
+    return column.iat[0]
 
 def ft_max(column):
-    return column.iloc[-1]
+    return column.iat[-1]
+
+def ft_quantile(column, div, part):
+    (pos, rest) = np.divmod((column.size - 1) * part, div)
+    if rest == 0:
+        return column.iat[pos]
+    return (column.iat[pos] * (div - rest) + column.iat[pos + 1] * rest) / div
 
 def ft_25(column):
-    n = len(column)
-    pos = (n - 1) / 4
-    lower = int(pos)
-    upper = lower + 1
-
-    if pos == lower:
-        return column.iloc[int(pos)]
-    else:
-        # Interpolate between the two closest values
-        weight = pos - lower
-        return (1 - weight) * column.iloc[lower] + weight * column.iloc[upper]
+    return ft_quantile(column, 4, 1)
 
 def ft_50(column):
-    n = len(column)
-    pos = n // 2
-    if n % 2 != 0:
-        median = column.iloc[pos]
-    else:        
-        median = (column.iloc[pos - 1] + column.iloc[pos]) / 2
-    return median
+    return ft_quantile(column, 2, 1)
 
 def ft_75(column):
-    n = len(column)
-    pos = (n - 1) / 4 * 3
-    lower = int(pos)
-    upper = lower + 1
-
-    if pos == lower:
-        return column.iloc[int(pos)]
-    else:
-        weight = pos - lower
-        return (1 - weight) * column.iloc[lower] + weight * column.iloc[upper]
+    return ft_quantile(column, 4, 3)
 
 def ft_var(column):
-    # Subtract the mean from each value and square the result
-    squared_differences = (column - ft_mean(column)) ** 2
-    variance = squared_differences.sum() / (len(column) - 1)
-    return variance
+    n = ft_count(column)
+
+    return (1 / (n - 1)) * ft_sum((column - ft_mean(column)) ** 2)
+    #return (sum_squared * n - sum**2) / (n**2 - n)
 
 def ft_skew(column):
-    n = len(column)
-    mean = ft_mean(column)
-    std = ft_std(column)
-    skewness = (n * ((column - mean) ** 3).sum()) / ((std ** 3) * (n - 1) * (n - 2))
-    return skewness
+    n = ft_count(column)
+
+    return n / ((n - 1) * (n - 2)) * ft_sum(((column - ft_mean(column)) / ft_std(column)) ** 3)
+    #return (n**2 * sum_cubed - 3 * n * sum * sum_squared + 2 * sum**3 ) / (n * sum_squared - sum**2) ** (3/2)
+
 
 def ft_kurt(column):
-    mean = ft_mean(column)
-    n = len(column)
-    var = ft_var(column)
-    sum_term = ((column-mean)**4).sum()
-    factor = (n+1) * n / (n-1) / (n-2) / (n-3)
-    second = - 3 * (n-1) * (n-1) / (n-2) / (n-3)
+    n = ft_count(column)
 
-    first = factor * sum_term / var / var
-
-    kurtosis = first + second
-    return kurtosis
-
+    return n * (n + 1) / ((n - 1) * (n - 2) * (n - 3)) * ft_sum(((column - ft_mean(column)) / ft_std(column)) ** 4) - 3 * (n - 1)**2 / ((n - 2) * (n - 3))
+    #return (n**3 * sum_quartic - 4 * n**2 * sum * sum_cubed - 3 * n**2 * sum_squared**2 + 12 * n * sum**2 * sum_squared - 6 * sum**4 )/(n**2 * sum_squared**2 - 2 * n * sum**2 * sum_squared + sum**4 ) 
+    
 def ft_range(column):
     return ft_max(column) - ft_min(column)
