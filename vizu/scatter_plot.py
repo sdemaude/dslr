@@ -12,9 +12,18 @@ colors = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Magenta', 
 def main():
 	correlation_matrix = dataset[courses].corr().abs()
 
+	# Set the diagonal values to NaN and mask them
+	for i in range(len(courses)):
+		correlation_matrix.iloc[i, i] = np.nan
+	masked_correlation_matrix = np.ma.masked_invalid(correlation_matrix)
+	
+	# Create a colormap and set NaN values to grey
+	cmap = plt.cm.get_cmap("coolwarm").copy()
+	cmap.set_bad(color='SlateGray')
+	
 	# Create a scatter plot with the correlation matrix
 	plt.figure(figsize=(10, 8))
-	im = plt.imshow(correlation_matrix, cmap='coolwarm', interpolation='nearest')
+	im = plt.imshow(masked_correlation_matrix, cmap=cmap, interpolation='nearest')
 	plt.colorbar(label='Correlation Coefficient')
 	plt.xticks(np.arange(len(courses)), courses, rotation=45, ha='right')
 	plt.yticks(np.arange(len(courses)), courses)
@@ -24,7 +33,9 @@ def main():
 	for i in range(len(courses)):
 		for j in range(len(courses)):
 			value = correlation_matrix.iloc[i, j]
-			plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
+			if not np.isnan(value):
+				plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
+
 
 	plt.tight_layout()
 	plt.show()

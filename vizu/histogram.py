@@ -6,10 +6,10 @@ import numpy as np
 import pandas as pd
 
 
-courses_color = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Magenta', 'DarkOrange',
+courses_color = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'DarkMagenta', 'DarkOrange',
             'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
 
-houses_colors = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray']
+houses_colors = ['DarkRed', 'Gold', 'RoyalBlue', 'DarkGreen']
 
 def wasserstein(houses_dataset, courses):
     wasserstein_score = pd.DataFrame(columns=courses)
