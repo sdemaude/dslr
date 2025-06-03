@@ -2,7 +2,6 @@ from scipy.stats import wasserstein_distance
 from itertools import combinations
 from matplotlib.widgets import Button
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 

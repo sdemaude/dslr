@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 import pandas as pd
 import calculation_utils as calc
 
@@ -31,18 +30,15 @@ def stats_computation(column):
 # Custom implementation of pandas.DataFrame.describe() function
 def ft_describe(data_frame):
 
-    # Define statistics to calculate
     stats = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'var', 'skew', 'kurt', 'range']
     results = {}
 
-    # Compute stats for float columns
     for column_name in data_frame.select_dtypes(include=['float']).columns:
         column = data_frame[column_name].dropna()  # Exclude NaN values
         column = column.sort_values()
         stats = stats_computation(column)
         results[column_name] = list(stats.values())
     
-    # Create the result DataFrame to display the stats
     result_df = pd.DataFrame(results, index=stats)
     return result_df
 
@@ -54,11 +50,9 @@ def main():
             print('usage: describe.py [input_file].csv [-d]', file=sys.stderr)
             return
 
-        # Read the CSV file and catch any errors
         try: 
             csv_file = sys.argv[1]
-            df = pd.read_csv(csv_file)
-            
+            df = pd.read_csv(csv_file)        
         except:
             print('error: could not read .csv file', file=sys.stderr)
             return
