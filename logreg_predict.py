@@ -9,3 +9,5 @@
 # 4,Slytherin
 # 5,Ravenclaw
 # 6,Hufflepuff
+
+#generate a file with the predictions of the logistic regression model using the weights trained by previous program
