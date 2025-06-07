@@ -8,8 +8,12 @@ import pandas as pd
 courses_color = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'DarkMagenta', 'DarkOrange',
             'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
 
-houses_colors = ['DarkRed', 'Gold', 'RoyalBlue', 'DarkGreen']
-
+houses_colors = {
+	'Gryffindor': 'DarkRed',
+	'Ravenclaw': 'RoyalBlue',
+	'Slytherin': 'DarkGreen',
+	'Hufflepuff': 'Gold'
+}
 
 def wasserstein(houses_dataset, courses):
     wasserstein_score = pd.DataFrame(columns=courses)
@@ -23,8 +27,8 @@ def wasserstein(houses_dataset, courses):
 
 def plot_histogram(houses_dataset, course):
     plt.figure(figsize=(8, 5))
-    for (house, group), color in zip(houses_dataset, houses_colors):
-        plt.hist(group[course].dropna(), bins=20, alpha=0.5, label=house, color=color)
+    for (house, group) in houses_dataset:
+        plt.hist(group[course].dropna(), bins=20, alpha=0.5, label=house, color=houses_colors.get(house, 'gray'))
     plt.title(f'Histogram for {course}')
     plt.xlabel('Score')
     plt.ylabel('Frequency')

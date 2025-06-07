@@ -7,7 +7,12 @@ courses = dataset.select_dtypes(include='float').columns
 colors = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Magenta', 'DarkOrange',
             'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
 
-houses_colors = ['DarkRed', 'Gold', 'RoyalBlue', 'DarkGreen']
+houses_colors = {
+	'Gryffindor': 'DarkRed',
+	'Ravenclaw': 'RoyalBlue',
+	'Slytherin': 'DarkGreen',
+	'Hufflepuff': 'Gold'
+}
 
 def scatter_plot(course_x, course_y):
 	plt.figure(figsize=(10, 10))
@@ -18,7 +23,7 @@ def scatter_plot(course_x, course_y):
 			dataset.loc[house_dataset, course_x],
 			dataset.loc[house_dataset, course_y],
 			alpha=0.6,
-			color=houses_colors[i % len(houses_colors)],
+			color=houses_colors.get(house, 'gray'),
 			label=house
 		)
 	plt.xlabel(course_x)
