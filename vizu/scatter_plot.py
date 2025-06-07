@@ -7,6 +7,34 @@ courses = dataset.select_dtypes(include='float').columns
 colors = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Magenta', 'DarkOrange',
             'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
 
+houses_colors = ['DarkRed', 'Gold', 'RoyalBlue', 'DarkGreen']
+
+def scatter_plot(course_x, course_y):
+	plt.figure(figsize=(10, 10))
+	houses = dataset['Hogwarts House'].unique()
+	for i, house in enumerate(houses):
+		house_dataset = dataset['Hogwarts House'] == house
+		plt.scatter(
+			dataset.loc[house_dataset, course_x],
+			dataset.loc[house_dataset, course_y],
+			alpha=0.6,
+			color=houses_colors[i % len(houses_colors)],
+			label=house
+		)
+	plt.xlabel(course_x)
+	plt.ylabel(course_y)
+	plt.title(f'Scatter Plot: {course_x} vs {course_y}')
+	plt.grid(True, linestyle='--', alpha=0.5)
+	plt.legend(title='House')
+	plt.show(block=False)
+
+def on_click(event, correlation_matrix, courses):
+	if event.inaxes is None:
+		return
+	x, y = int(round(event.xdata)), int(round(event.ydata))
+	if 0 <= x < len(courses) and 0 <= y < len(courses) and x != y:
+		scatter_plot(courses[x], courses[y])
+
 def main():
 	correlation_matrix = dataset[courses].corr().abs()
 
@@ -20,8 +48,8 @@ def main():
 	cmap.set_bad(color='SlateGray')
 	
 	# Create a scatter plot with the correlation matrix
-	plt.figure(figsize=(10, 8))
-	im = plt.imshow(masked_correlation_matrix, cmap=cmap, interpolation='nearest')
+	fig = plt.figure(figsize=(10, 8))
+	im = plt.imshow(masked_correlation_matrix, cmap=cmap)
 	plt.colorbar(label='Correlation Coefficient')
 	plt.xticks(np.arange(len(courses)), courses, rotation=45, ha='right')
 	plt.yticks(np.arange(len(courses)), courses)
@@ -34,8 +62,11 @@ def main():
 			if not np.isnan(value):
 				plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
 
+	fig.canvas.mpl_connect(
+		'button_press_event',
+		lambda event: on_click(event, correlation_matrix, courses)
+	)
 
-	plt.tight_layout()
 	plt.show()
 
 if __name__ == '__main__':

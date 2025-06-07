@@ -10,6 +10,7 @@ courses_color = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Dar
 
 houses_colors = ['DarkRed', 'Gold', 'RoyalBlue', 'DarkGreen']
 
+
 def wasserstein(houses_dataset, courses):
     wasserstein_score = pd.DataFrame(columns=courses)
     for (nameA, houseA), (nameB, houseB) in combinations(houses_dataset, 2):
@@ -20,7 +21,7 @@ def wasserstein(houses_dataset, courses):
         wasserstein_score = pd.concat([wasserstein_score, row.to_frame().T], ignore_index=True)
     return wasserstein_score.mean()
 
-def plot_course_histogram(houses_dataset, course):
+def plot_histogram(houses_dataset, course):
     plt.figure(figsize=(8, 5))
     for (house, group), color in zip(houses_dataset, houses_colors):
         plt.hist(group[course].dropna(), bins=20, alpha=0.5, label=house, color=color)
@@ -28,9 +29,20 @@ def plot_course_histogram(houses_dataset, course):
     plt.xlabel('Score')
     plt.ylabel('Frequency')
     plt.legend()
-    plt.tight_layout()
     plt.show(block=False)
-    plt.pause(0.1)
+
+def barIndex(event, bars):
+    for i, bar in enumerate(bars):
+        if bar.contains(event)[0]:
+            return i
+    return None
+
+def onclick(event, bars, houses_dataset, courses):
+    if event.inaxes is None:
+        return
+    i = barIndex(event, bars)
+    if i is not None:
+        plot_histogram(houses_dataset, courses[i])
 
 def plot_std(ax, houses_dataset, courses):
     ax.clear()
@@ -97,14 +109,10 @@ def main():
     btn_std.on_clicked(update_std)
     btn_wass.on_clicked(update_wass)
 
-    def onclick(event):
-        if event.inaxes == ax:
-            for i, bar in enumerate(bars):
-                if bar.contains(event)[0]:
-                    plot_course_histogram(houses_dataset, courses[i])
-                    break
-
-    cid = fig.canvas.mpl_connect('button_press_event', onclick)
+    cid = fig.canvas.mpl_connect(
+        'button_press_event',
+        lambda event: onclick(event, bars, houses_dataset, courses)
+    )
 
     plt.show()
 
