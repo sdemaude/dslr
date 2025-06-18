@@ -1,87 +1,90 @@
-#It takes as a parameter dataset_train.csv. For the mandatory part, you must use the technique of gradient descent to minimize the error.
-#The program generates a file containing the weights that will be used for the prediction.
-
-#genere a file with the weights of the logistic regression model
-
-import calculation_utils as calc
+import logreg_vizu as viz
 import pandas as pd
 import numpy as np
-import sys
 
-def normalize(X):
-    #means = X.mean()
-    #stds = X.std()
-    #return (X - means) / stds
-    means = calc.ft_mean(X)
-    stds = calc.ft_std(X)
-    return (X - means) / stds
+def normalize(data):
+	mean = data.mean(axis=0)
+	std = data.std(axis=0)
+	return (data - mean) / std
 
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z)) # re-code the exponential function from scratch ?
+def model(X, W, b):
+	return X @ W + b
 
-def cost_function(X, y, theta):
-    m = len(y)
-    h = sigmoid(X @ theta)
-    cost = -1/m * (y.T @ np.log(h) + (1 - y).T @ np.log(1 - h)) # re-code the log function from scratch ? + the matrix multiplication
-    return cost
+def sigmoid(Z):
+	return 1 / (1 + np.exp(-Z))
 
-#def gradient(X, y, theta):
+def log_loss(Y, A, epsilon=1e-15):
+    m = Y.shape[0]
+    A = np.clip(A, epsilon, 1 - epsilon)
+    return -1/m * np.sum(Y * np.log(A) + (1 - Y) * np.log(1 - A))
 
-#def logistic_regression(X, y, alpha=0.01, num_iterations=1000):
-    # sigmoid function
-    # cost function
-    # gradient descent to minimize the cost function
-    # return theta
+def gradient(X, Y, A):
+    m = Y.shape[0]
+    dZ = A - Y
+    dW = 1/m * X.T @ dZ
+    db = 1/m * np.sum(dZ)
+    return dW, db
+
+def update_parameters(W, b, dW, db, learning_rate):
+	W = W - learning_rate * dW
+	b = b - learning_rate * db
+	return W, b
+
+def logistic_regression(X, Y, learning_rate=0.01, epochs=1000):
+    W = np.zeros((X.shape[1], 1))
+    b = np.zeros((1, 1))
+    History = {
+        'Losses': [],
+        'Weights': [],
+        'Biases': []
+    }
+
+    for epoch in range(epochs):
+        Z = model(X, W, b)
+        A = sigmoid(Z)
+        loss = log_loss(Y, A)
+        dW, db = gradient(X, Y, A)
+        W, b = update_parameters(W, b, dW, db, learning_rate)
+
+        History['Losses'].append(loss)
+        History['Weights'].append(W.copy())
+        History['Biases'].append(b.copy())
+
+    return W, b, History
+
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python logreg_train.py <dataset_file>")
-        sys.exit(1)
-    dataset_file = sys.argv[1]
-    df = pd.read_csv(dataset_file)
+    dataset = pd.read_csv('datasets/dataset_train.csv')
+    filtered_dataset = dataset.dropna()
+    courses_dataset = filtered_dataset.select_dtypes(include='float')
+    houses_dataset = filtered_dataset['Hogwarts House']
+    houses = houses_dataset.unique()
 
-    features = ['Astronomy', 'Herbology', 'Defense Against the Dark Arts']
-    df = df.dropna(subset=features + ['Hogwarts House'])
-    X = df[features].values
-    y = df['Hogwarts House'].values
+    Weights = {}
+    Biases = {}
+    Histories = {}
 
-    X = normalize(X)
-    X = np.c_[np.ones(X.shape[0]), X]  # ajoute 1 au début de chaque ligne (terme de biais)
+    X = normalize(courses_dataset.to_numpy())
 
-    houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
+    for house in houses:
+        Y = (houses_dataset == house).astype(int).to_numpy().reshape(-1, 1)
+        W, b, History = logistic_regression(X, Y, epochs=2000)
+        Weights[house] = W
+        Biases[house] = b
+        Histories[house] = History
 
-    #logistic regression
+    probs = {}
+    for house in houses:
+        Z = model(X, Weights[house], Biases[house])
+        probs[house] = sigmoid(Z).flatten()
+    probs_matrix = np.column_stack([probs[house] for house in houses])
+    pred_indices = np.argmax(probs_matrix, axis=1)
+    pred_houses = np.array(houses)[pred_indices]
+    true_houses = houses_dataset.to_numpy()
+    accuracy = np.mean(pred_houses == true_houses)
+    print(f"Accuracy: {accuracy * 100:.2f}%")
 
-    '''
-    1. Charger les données d'entraînement (dataset_train.csv)
-    - X = tableau des notes des élèves (features)
-    - y = leur vraie maison
+    viz.train_visualization(Histories, houses, true_houses, pred_houses, accuracy)
 
-    2. Normaliser X (mettre les notes sur une échelle comparable)
-
-    3. Ajouter une colonne de "1" à X (c'est le biais)
-
-    4. Pour chaque maison (Ravenclaw, Gryffindor, etc.) :
-    a. Créer un tableau y_binary :
-        - 1 si l'élève est dans cette maison
-        - 0 sinon
-    b. Initialiser les poids θ à 0
-    c. Répéter (ex: 1000 fois) :
-        i.   Faire la prédiction : h = sigmoid(X * θ)
-        ii.  Calculer l'erreur entre h et y_binary
-        iii. Calculer le gradient
-        iv.  Mettre à jour les poids : θ = θ - alpha * gradient
-    d. Sauvegarder θ pour cette maison
-
-    5. Sauvegarder tous les θ dans un fichier weights.csv
-        Exemple de format :
-            Houses,Weights
-            Gryffindor,0.1
-            Ravenclaw,0.4
-            ...
-
-    '''
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+	main()

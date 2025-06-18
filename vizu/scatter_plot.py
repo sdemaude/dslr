@@ -33,7 +33,7 @@ def scatter_plot(course_x, course_y):
 	plt.legend(title='House')
 	plt.show(block=False)
 
-def on_click(event, correlation_matrix, courses):
+def on_click(event, courses):
 	if event.inaxes is None:
 		return
 	x, y = int(round(event.xdata)), int(round(event.ydata))
@@ -69,7 +69,7 @@ def main():
 
 	fig.canvas.mpl_connect(
 		'button_press_event',
-		lambda event: on_click(event, correlation_matrix, courses)
+		lambda event: on_click(event, courses)
 	)
 
 	plt.show()
