@@ -1,6 +1,6 @@
 import sys
 import pandas as pd
-import calculation_utils as calc
+import calculation as calc
 
 def format_column_name(name):
     truncated = name[:10]  # Truncate to 10 characters

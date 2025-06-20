@@ -1,10 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 
-dataset = pd.read_csv('datasets/dataset_train.csv')
-courses = dataset.select_dtypes(include='float').columns
-houses = dataset['Hogwarts House'].dropna().unique()
-
 house_colors = {
     'Gryffindor': 'DarkRed',
     'Ravenclaw': 'RoyalBlue',
@@ -16,6 +12,10 @@ def wrap_label(label, max_len=16):
     return '\n'.join([label[i:i+max_len] for i in range(0, len(label), max_len)])
 
 def main():
+    dataset = pd.read_csv('datasets/dataset_train.csv')
+    courses = dataset.select_dtypes(include='float').columns
+    houses = dataset['Hogwarts House'].unique()
+
     num_courses = len(courses)
     fig, axes = plt.subplots(num_courses, num_courses, figsize=(15, 15))
     plt.subplots_adjust(wspace=0.3, hspace=0.3)

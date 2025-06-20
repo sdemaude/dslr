@@ -5,8 +5,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-courses_color = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'DarkMagenta', 'DarkOrange',
-            'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
+courses_color = {
+    'Arithmancy': 'FireBrick',
+    'Astronomy': 'MidnightBlue',
+    'Herbology': 'OliveDrab',
+    'Defense Against the Dark Arts': 'DarkSlateGray',
+    'Divination': 'DarkMagenta',
+    'Muggle Studies': 'DarkOrange',
+    'Ancient Runes': 'Sienna',
+    'History of Magic': 'Goldenrod',
+    'Transfiguration': 'Indigo',
+    'Potions': 'Aquamarine',
+    'Care of Magical Creatures': 'DarkKhaki',
+    'Charms': 'Plum',
+    'Flying': 'LightSteelBlue'
+}
 
 houses_colors = {
 	'Gryffindor': 'DarkRed',
@@ -56,7 +69,7 @@ def plot_std(ax, houses_dataset, courses):
     ax.set(title='Standard Deviation of Mean Scores per Hogwarts House per Course',
            ylabel='Standard Deviation', xlabel='Courses', yscale='log')
 
-    bars = ax.bar(courses, std_scores, color=courses_color[:len(courses)])
+    bars = ax.bar(courses, std_scores, color=[courses_color.get(course, 'gray') for course in courses])
 
     for bar in bars:
         h = bar.get_height()
@@ -76,7 +89,7 @@ def plot_wass(ax, houses_dataset, courses):
     ax.set(title='Mean Wasserstein Distance per Hogwarts House per Course',
            ylabel='Mean Wasserstein Distance', xlabel='Courses', yscale='log')
 
-    bars = ax.bar(courses, wasserstein_score, color=courses_color[:len(courses)])
+    bars = ax.bar(courses, wasserstein_score, color=[courses_color.get(course, 'gray') for course in courses])
 
     for bar in bars:
         h = bar.get_height()

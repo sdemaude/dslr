@@ -2,11 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-dataset = pd.read_csv('datasets/dataset_train.csv')
-courses = dataset.select_dtypes(include='float').columns
-colors = ['FireBrick', 'MidnightBlue', 'OliveDrab', 'DarkSlateGray', 'Magenta', 'DarkOrange',
-            'Sienna', 'Goldenrod', 'Indigo', 'Aquamarine', 'DarkKhaki', 'Plum', 'LightSteelBlue']
-
 houses_colors = {
 	'Gryffindor': 'DarkRed',
 	'Ravenclaw': 'RoyalBlue',
@@ -14,7 +9,7 @@ houses_colors = {
 	'Hufflepuff': 'Gold'
 }
 
-def scatter_plot(course_x, course_y):
+def scatter_plot(dataset, course_x, course_y):
 	plt.figure(figsize=(10, 10))
 	houses = dataset['Hogwarts House'].unique()
 	for i, house in enumerate(houses):
@@ -33,14 +28,17 @@ def scatter_plot(course_x, course_y):
 	plt.legend(title='House')
 	plt.show(block=False)
 
-def on_click(event, courses):
+def on_click(event, dataset, courses):
 	if event.inaxes is None:
 		return
 	x, y = int(round(event.xdata)), int(round(event.ydata))
 	if 0 <= x < len(courses) and 0 <= y < len(courses) and x != y:
-		scatter_plot(courses[x], courses[y])
+		scatter_plot(dataset, courses[x], courses[y])
 
 def main():
+	dataset = pd.read_csv('datasets/dataset_train.csv')
+	courses = dataset.select_dtypes(include='float').columns
+
 	correlation_matrix = dataset[courses].corr().abs()
 
 	# Set the diagonal values to NaN and mask them
@@ -64,12 +62,13 @@ def main():
 	for i in range(len(courses)):
 		for j in range(len(courses)):
 			value = correlation_matrix.iloc[i, j]
-			if not np.isnan(value):
-				plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
+			if np.isnan(value):
+				value = np.delete(correlation_matrix.iloc[i], j).mean()
+			plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
 
 	fig.canvas.mpl_connect(
 		'button_press_event',
-		lambda event: on_click(event, courses)
+		lambda event: on_click(event, dataset, courses)
 	)
 
 	plt.show()
