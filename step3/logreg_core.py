@@ -10,6 +10,9 @@ class History:
         self.W.append(W)
         self.b.append(b)
         self.L.append(L)
+    
+    def __len__(self):
+        return len(self.W)
 
 def normalize(data):
 	mean = data.mean(axis=0)
