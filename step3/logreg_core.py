@@ -11,13 +11,15 @@ class History:
         self.b.append(b)
         self.L.append(L)
     
-    def __len__(self):
-        return len(self.W)
+def fit(data):
+    mean = data.mean(axis=0)
+    std = data.std(axis=0)
+    return mean, std
 
-def normalize(data):
-	mean = data.mean(axis=0)
-	std = data.std(axis=0)
-	return (data - mean) / std
+def normalize(data, mean=None, std=None):
+    if mean is None or std is None:
+        mean, std = fit(data)
+    return (data - mean) / std
 
 def model(X, W, b):
 	return X @ W + b
@@ -58,7 +60,5 @@ def logistic_regression(X, Y, learning_rate=0.01, epochs=1000):
     return W, b, history
 
 def predict(X, weights, biases):
-    W = np.array(weights)
-    b = np.array(biases)
-    probabilities = sigmoid(model(X, W, b))
+    probabilities = sigmoid(model(X, weights, biases))
     return np.argmax(probabilities, axis=0).flatten()

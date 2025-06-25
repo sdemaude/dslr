@@ -29,8 +29,10 @@ def main():
     houses_dataset = filtered_dataset['Hogwarts House']
     houses = houses_dataset.unique()
 
+    courses_matrix = courses_dataset.to_numpy()
 
-    courses_matrix = lrc.normalize(courses_dataset.to_numpy())
+    mean, std = lrc.fit(courses_matrix)
+    courses_matrix = lrc.normalize(courses_matrix, mean, std)
 
     weights = []
     biases = []
@@ -42,8 +44,12 @@ def main():
         weights.append(W)
         biases.append(b)
         histories.append(history.W, history.b, history.L)
-
+    
+    np.savez('logreg_parameters.npz', mean=mean, std=std, weights=weights, biases=biases, courses=courses_dataset.columns, houses=houses)
+    
     lrv.TrainVisualization(weights, biases, histories, courses_dataset, houses_dataset, houses, args.epochs)
+    if courses_dataset.shape[1] == 2:
+        lrv.TrainVisualization2D(weights, biases, histories, courses_dataset, houses_dataset, houses, args.epochs)
 
 if __name__ == "__main__":
 	main()
