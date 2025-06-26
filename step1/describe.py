@@ -33,8 +33,8 @@ def ft_describe(data_frame):
     stats = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'var', 'skew', 'kurt', 'range']
     results = {}
 
-    for column_name in data_frame.select_dtypes(include=['float']).columns:
-        column = data_frame[column_name].dropna()  # Exclude NaN values
+    for column_name in data_frame.columns:
+        column = data_frame[column_name].dropna()
         column = column.sort_values()
         stats = stats_computation(column)
         results[column_name] = list(stats.values())
@@ -59,17 +59,18 @@ def main():
 
         df = df.rename(columns=format_column_name)
 
+        df_numeric = df.select_dtypes(include=['float']).dropna(axis=1, how='all')
+
         print('\nft_describe function:\n')  
-        print(ft_describe(df))
+        print(ft_describe(df_numeric))
 
         if len(sys.argv) == 3:
-            float_df = df.select_dtypes(include=['float'])
-            true_describe = float_df.describe()
+            true_describe = df_numeric.describe()
 
-            true_describe.loc['var'] = float_df.var()
-            true_describe.loc['skew'] = float_df.skew()
-            true_describe.loc['kurt'] = float_df.kurt()
-            true_describe.loc['range'] = float_df.max() - float_df.min()
+            true_describe.loc['var'] = df_numeric.var()
+            true_describe.loc['skew'] = df_numeric.skew()
+            true_describe.loc['kurt'] = df_numeric.kurt()
+            true_describe.loc['range'] = df_numeric.max() - df_numeric.min()
 
             print('\npandas describe function:\n')
             print(true_describe)

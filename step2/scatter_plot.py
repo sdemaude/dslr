@@ -47,7 +47,7 @@ def main():
 	masked_correlation_matrix = np.ma.masked_invalid(correlation_matrix)
 	
 	# Create a colormap and set NaN values to grey
-	cmap = plt.cm.get_cmap("coolwarm").copy()
+	cmap = plt.get_cmap("coolwarm").copy()
 	cmap.set_bad(color='SlateGray')
 	
 	# Create a scatter plot with the correlation matrix

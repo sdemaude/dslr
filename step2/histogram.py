@@ -29,7 +29,7 @@ houses_colors = {
 }
 
 def wasserstein(houses_dataset, courses):
-    wasserstein_score = pd.DataFrame(columns=courses)
+    wasserstein_score = pd.DataFrame(columns=courses, dtype=float)
     for (nameA, houseA), (nameB, houseB) in combinations(houses_dataset, 2):
         row = pd.Series(index=courses)
         for course in courses:

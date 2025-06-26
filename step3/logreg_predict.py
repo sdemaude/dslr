@@ -43,8 +43,6 @@ def main():
 
 	predicted_houses = houses[lrc.predict(courses_matrix, weights, biases)]
 
-	print("Predicted houses:", predicted_houses)
-
 	predictions_df = pd.DataFrame({
 		'Index': courses_dataset.index,
 		'Hogwarts House': predicted_houses
