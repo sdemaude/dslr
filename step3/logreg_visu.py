@@ -2,6 +2,7 @@ import logreg_core as lrc
 import matplotlib.pyplot as plt
 import matplotlib.widgets as widgets
 import matplotlib.animation as animation
+from matplotlib.colors import to_rgb
 import pandas as pd
 import numpy as np
 import math
@@ -15,7 +16,8 @@ houses_colors = {
 
 misclassified = 'Misclassified'
 
-contourf_resolution = 200
+image_zones_resolution = 200
+color_accentuation = 16
 
 class TrainVisualization:
 	def __init__(self, weights, biases, histories, courses_dataset, houses_dataset, houses, epochs, step=5):
@@ -30,6 +32,9 @@ class TrainVisualization:
 		self.frames = math.ceil(epochs / step)
 		self.setup_plot()
 		self.show()
+	
+	def __del__(self):
+		plt.close(self.fig)
 
 	def setup_plot(self):
 		self.course_matrix = lrc.normalize(self.courses_dataset.to_numpy())
@@ -193,13 +198,16 @@ class TrainVisualization2D:
 		self.frames = math.ceil(epochs / step)
 		self.setup_plot()
 		self.show()
+	
+	def __del__(self):
+		plt.close(self.fig)
 
 	def setup_plot(self):
 		self.course_matrix = lrc.normalize(self.courses_dataset.to_numpy())
 
 		self.fig, self.ax = plt.subplots()
 
-		self.init_contourf_plot()
+		self.init_image_zones_plot()
 		self.init_scatter_plot()
 
 		self.anim = animation.FuncAnimation(
@@ -222,48 +230,62 @@ class TrainVisualization2D:
 		plt.subplots_adjust(wspace=0.3, hspace=0.3)
 		plt.show()
 	
-	def compute_contourf(self, weights, biases):
-		contourf_Z = lrc.predict(np.c_[self.contourf_X.ravel(), self.contourf_Y.ravel()], weights, biases)
-		contourf_Z = contourf_Z.reshape(self.contourf_X.shape)
-		return contourf_Z
+	def compute_plot_bounds(self, margin=0.05):
+		self.bounds = (
+			self.course_matrix[:, 0].min() - margin, self.course_matrix[:, 0].max() + margin,
+			self.course_matrix[:, 1].min() - margin, self.course_matrix[:, 1].max() + margin
+		)
 
-	def preload_contourf(self):
-		margin = 0.05
-		x_min, x_max = self.course_matrix[:, 0].min() - margin, self.course_matrix[:, 0].max() + margin
-		y_min, y_max = self.course_matrix[:, 1].min() - margin, self.course_matrix[:, 1].max() + margin
+	def compute_meshgrid(self):
+		x_min, x_max, y_min, y_max = self.bounds
+		X, Y = np.meshgrid(
+			np.linspace(x_min, x_max, image_zones_resolution),
+			np.linspace(y_min, y_max, image_zones_resolution)
+		)
+		return X, Y
 
-		self.contourf_X, self.contourf_Y = np.meshgrid(np.linspace(x_min, x_max, contourf_resolution), np.linspace(y_min, y_max, contourf_resolution))
-		self.contourf_colors = [houses_colors.get(house, 'gray') for house in self.houses]
-		self.contourf_levels = len(self.houses) - 1
+	def compute_image_zones(self, grid, colors_houses_values, weights, biases):
+		probabilities = lrc.sigmoid(lrc.model(grid, weights, biases))
+		probabilities = probabilities.reshape(-1, image_zones_resolution, image_zones_resolution).transpose(1, 2, 0)
 
-		self.contourf_Zs = []
+		probabilities **= color_accentuation
+		probabilities /= probabilities.sum(axis=2, keepdims=True)
+
+		image_zones = probabilities @ colors_houses_values
+
+		return image_zones
+
+	def preload_image_zones(self):
+		self.compute_plot_bounds()
+		X, Y = self.compute_meshgrid()
+		grid = np.c_[X.ravel(), Y.ravel()]
+
+		colors_houses_values = np.array([to_rgb(houses_colors.get(house, 'gray')) for house in self.houses])
+
+		self.images_zones = []
+
 		for frame in range(self.frames - 1):
 			epoch = frame * self.step
 			weights = [house_weights[epoch] for house_weights in self.histories.W]
 			biases = [house_biases[epoch] for house_biases in self.histories.b]
-			contourf_Z = self.compute_contourf(weights, biases)
-			self.contourf_Zs.append(contourf_Z)
+			image_zones = self.compute_image_zones(grid, colors_houses_values, weights, biases)
+			self.images_zones.append(image_zones)
 		
-		contourf_Z = self.compute_contourf(self.weights, self.biases)
-		self.contourf_Zs.append(contourf_Z)
+		image_zones = self.compute_image_zones(grid, colors_houses_values, self.weights, self.biases)
+		self.images_zones.append(image_zones)
 	
-	def init_contourf_plot(self):
-		self.preload_contourf()
+	def init_image_zones_plot(self):
+		self.preload_image_zones()
+		image_zones = self.images_zones[-1]
+		self.im = self.ax.imshow(image_zones, extent=self.bounds, origin='lower', alpha=0.3)
 
-		contourf_Z = self.contourf_Zs[-1]
-		self.contourf = self.ax.contourf(self.contourf_X, self.contourf_Y, contourf_Z, levels=self.contourf_levels, colors=self.contourf_colors, alpha=0.3)
-	
-	def update_contourf_plot(self, frame, epoch):
-		contourf_Z = self.contourf_Zs[frame]
-		self.contourf.remove()
-		self.contourf = self.ax.contourf(self.contourf_X, self.contourf_Y, contourf_Z, levels=self.contourf_levels, colors=self.contourf_colors, alpha=0.3)
-		self.ax.set_title(f'Contour Plot of Courses by House (Epoch {epoch})', pad=20, fontsize=14)
-	
-	def reset_contourf_plot(self):
-		contourf_Z = self.contourf_Zs[-1]
-		self.contourf.remove()
-		self.contourf = self.ax.contourf(self.contourf_X, self.contourf_Y, contourf_Z, levels=self.contourf_levels, colors=self.contourf_colors, alpha=0.3)
-		self.ax.set_title('Contour Plot of Courses by House', pad=20, fontsize=14)
+	def update_image_zones_plot(self, frame, epoch):
+		image_zones = self.images_zones[frame]
+		self.im.set_data(image_zones)
+
+	def reset_image_zones_plot(self):
+		image_zones = self.images_zones[-1]
+		self.im.set_data(image_zones)
 
 	def compute_prediction(self, weights, biases):
 		houses_predicted = self.houses[lrc.predict(self.course_matrix, weights, biases)]
@@ -309,7 +331,7 @@ class TrainVisualization2D:
 		self.ax.legend(title='Hogwarts Houses')
 		self.ax.set_xlabel(self.courses_dataset.columns[0])
 		self.ax.set_ylabel(self.courses_dataset.columns[1])
-		self.ax.set_title('Scatter Plot of Courses by House', pad=20, fontsize=14)
+		self.ax.set_title('Boundaries and Predictions of Courses by Hogwarts House', pad=20, fontsize=14)
 	
 	def update_scatter_plot(self, frame, epoch):
 		for i, house in enumerate(self.houses):
@@ -318,8 +340,8 @@ class TrainVisualization2D:
 
 		x, y = self.get_courses_prediction(frame, misclassified)
 		self.scatter_plots[-1].set_offsets(np.c_[x, y])
-		
-		self.ax.set_title(f'Scatter Plot of Courses by House (Epoch {epoch})', pad=20, fontsize=14)
+
+		self.ax.set_title(f'Boundaries and Predictions of Courses by Hogwarts House (Epoch {epoch})', pad=20, fontsize=14)
 
 	def reset_scatter_plot(self):
 		for i, house in enumerate(self.houses):
@@ -328,17 +350,17 @@ class TrainVisualization2D:
 
 		x, y = self.get_courses_prediction(-1, misclassified)
 		self.scatter_plots[-1].set_offsets(np.c_[x, y])
-		
-		self.ax.set_title('Scatter Plot of Courses by House', pad=20, fontsize=14)	
+
+		self.ax.set_title('Boundaries and Predictions of Courses by Hogwarts House', pad=20, fontsize=14)
 	
 	def update_plots(self, frame):
 		epoch = min(frame * self.step, self.epochs)
-		self.update_contourf_plot(frame, epoch)
+		self.update_image_zones_plot(frame, epoch)
 		self.update_scatter_plot(frame, epoch)
 	
 	def reset_plots(self):
 		self.anim.frame_seq = self.anim.new_frame_seq()
-		self.reset_contourf_plot()
+		self.reset_image_zones_plot()
 		self.reset_scatter_plot()
 		self.fig.canvas.draw_idle()
 	
