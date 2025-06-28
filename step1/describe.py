@@ -3,31 +3,30 @@ import pandas as pd
 import calculation as calc
 
 def format_column_name(name):
-    truncated = name[:10]  # Truncate to 10 characters
-    if len(name) > 10:     # Check if the name was truncated
+    truncated = name[:10]
+    if len(name) > 10:
         truncated = truncated.rstrip() + '...'
     return truncated 
 
 def stats_computation(column):
     stats = {}
 
-    stats['count'] = calc.ft_count(column)                    # count
-    stats['mean'] = calc.ft_mean(column)                      # mean
-    stats['std'] = calc.ft_std(column)                        # std
-    stats['min'] = calc.ft_min(column)                        # min
-    stats['25%'] = calc.ft_25(column)                         # 25th percentile
-    stats['50%'] = calc.ft_50(column)                         # 50th percentile (median)
-    stats['75%'] = calc.ft_75(column)                         # 75th percentile
-    stats['max'] = calc.ft_max(column)                        # max
+    stats['count'] = calc.ft_count(column)
+    stats['mean'] = calc.ft_mean(column)
+    stats['std'] = calc.ft_std(column)
+    stats['min'] = calc.ft_min(column)
+    stats['25%'] = calc.ft_25(column)
+    stats['50%'] = calc.ft_50(column)
+    stats['75%'] = calc.ft_75(column)
+    stats['max'] = calc.ft_max(column)
 
-    stats['var'] = calc.ft_var(column)                        # variance
-    stats['skew'] = calc.ft_skew(column)                      # skewness
-    stats['kurt'] = calc.ft_kurt(column)                      # kurtosis
-    stats['range'] = calc.ft_range(column)                    # range
+    stats['var'] = calc.ft_var(column)
+    stats['skew'] = calc.ft_skew(column)
+    stats['kurt'] = calc.ft_kurt(column)
+    stats['range'] = calc.ft_range(column)
 
     return stats
 
-# Custom implementation of pandas.DataFrame.describe() function
 def ft_describe(data_frame):
 
     stats = ['count', 'mean', 'std', 'min', '25%', '50%', '75%', 'max', 'var', 'skew', 'kurt', 'range']

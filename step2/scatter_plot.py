@@ -41,16 +41,13 @@ def main():
 
 	correlation_matrix = dataset[courses].corr().abs()
 
-	# Set the diagonal values to NaN and mask them
 	for i in range(len(courses)):
 		correlation_matrix.iloc[i, i] = np.nan
 	masked_correlation_matrix = np.ma.masked_invalid(correlation_matrix)
 	
-	# Create a colormap and set NaN values to grey
 	cmap = plt.get_cmap("coolwarm").copy()
 	cmap.set_bad(color='SlateGray')
 	
-	# Create a scatter plot with the correlation matrix
 	fig = plt.figure(figsize=(10, 8))
 	im = plt.imshow(masked_correlation_matrix, cmap=cmap)
 	plt.colorbar(label='Correlation Coefficient')
@@ -58,13 +55,11 @@ def main():
 	plt.yticks(np.arange(len(courses)), courses)
 	plt.title('Correlation Matrix of Hogwarts Courses')
 
-	# Afficher la valeur dans chaque case
 	for i in range(len(courses)):
 		for j in range(len(courses)):
 			value = correlation_matrix.iloc[i, j]
-			if np.isnan(value):
-				value = np.delete(correlation_matrix.iloc[i], j).mean()
-			plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
+			if not np.isnan(value):
+				plt.text(j, i, f"{value:.2f}", ha='center', va='center', color='black', fontsize=8)
 
 	fig.canvas.mpl_connect(
 		'button_press_event',

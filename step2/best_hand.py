@@ -13,7 +13,6 @@ houses_dataset = dataset.groupby('Hogwarts House')
 
 fig, axes = plt.subplots(2, 2, figsize=(10, 10))
 axes = axes.flatten()
-
 for i, (house, group) in enumerate(houses_dataset):
     hand_counts = group['Best Hand'].value_counts()
     ordered_counts = hand_counts.reindex(['Left', 'Right'], fill_value=0)

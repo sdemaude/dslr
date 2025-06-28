@@ -1,21 +1,8 @@
-#It takes as a parameter dataset_test.csv and a file containing the weights trained by previous program.
-#In order to evaluate the performance of your classifier this second program will have to generate a prediction file houses.csv formatted exactly as follows:
-# 
-# Index,Hogwarts House
-# 0,Gryffindor
-# 1,Hufflepuff
-# 2,Ravenclaw
-# 3,Hufflepuff
-# 4,Slytherin
-# 5,Ravenclaw
-# 6,Hufflepuff
-
-#generate a file with the predictions of the logistic regression model using the weights trained by previous program
-
 import logreg_core as lrc
 import pandas as pd
 import numpy as np
 import argparse
+import os
 
 
 def parse_args():
@@ -28,6 +15,10 @@ def parse_args():
 def main():
 	args = parse_args()
 
+
+	if not os.path.exists(args.model):
+		print(f"Error: Model file '{args.model}' does not exist.")
+		exit(1)
 	model = np.load(args.model, allow_pickle=True)
 	mean = model['mean']
 	std = model['std']

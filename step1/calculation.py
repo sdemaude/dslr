@@ -22,7 +22,9 @@ def ft_max(column):
     return column.iat[-1]
 
 def ft_quantile(column, div, part):
-    (pos, rest) = np.divmod((column.size - 1) * part, div)
+    scaled_position = ((column.size - 1) * part)
+    pos = scaled_position // div
+    rest = scaled_position % div
     if rest == 0:
         return column.iat[pos]
     return (column.iat[pos] * (div - rest) + column.iat[pos + 1] * rest) / div

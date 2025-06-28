@@ -27,12 +27,10 @@ def main():
             y_col = courses[i]
 
             if i == j:
-                # Diagonal: histogram for each house
                 for house in houses:
                     subset = dataset[dataset['Hogwarts House'] == house]
                     ax.hist(subset[x_col].dropna(), alpha=0.6, label=house, color=house_colors.get(house, 'gray'))         
             else:
-                # Off-diagonal: scatter plot per house
                 for house in houses:
                     subset = dataset[dataset['Hogwarts House'] == house]
                     ax.scatter(subset[x_col], subset[y_col], alpha=0.3, s=10, label=house, color=house_colors.get(house, 'gray'))
