@@ -1,5 +1,3 @@
-import numpy as np
-
 def ft_count(column):
     return column.size
 
@@ -13,7 +11,7 @@ def ft_mean(column):
     return ft_sum(column) / column.size
 
 def ft_std(column):
-    return np.sqrt(ft_var(column))
+    return ft_var(column) ** 0.5
 
 def ft_min(column):
     return column.iat[0]
