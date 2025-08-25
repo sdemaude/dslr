@@ -28,7 +28,9 @@ def main():
 	houses = model['houses']
 
 	dataset = pd.read_csv(args.dataset)
-	courses_dataset = dataset[courses].dropna()
+
+	mean_dict = dict(zip(courses, mean))
+	courses_dataset = dataset[courses].fillna(mean_dict)
 
 	courses_matrix = lrc.normalize(courses_dataset.to_numpy(), mean, std)
 

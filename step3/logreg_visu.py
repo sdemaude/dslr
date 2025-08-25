@@ -132,9 +132,10 @@ class TrainVisualization:
 	
 	def init_loss_plot(self):
 		self.plots_loss = []
-		for i, house in enumerate(self.houses):
-			plot_loss, = self.ax_loss.plot(self.histories.L[i], label=house, color=houses_colors.get(house, 'gray'))
-			self.plots_loss.append(plot_loss)
+		if len(self.histories.L) != 0:
+			for i, house in enumerate(self.houses):
+				plot_loss, = self.ax_loss.plot(self.histories.L[i], label=house, color=houses_colors.get(house, 'gray'))
+				self.plots_loss.append(plot_loss)
 
 		self.ax_loss.set_title('Loss per epoch', pad=20, fontsize=14)
 		self.ax_loss.set_xlabel('Epochs')
